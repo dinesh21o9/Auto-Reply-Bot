@@ -74,6 +74,65 @@ async function getUnrepliedMessages(auth) {
   return response.data.messages || [];
 }
 
+// Function to send an auto-reply to an unreplied message
+async function sendAutoReply(auth, message, labelId) {
+  try {
+    const gmail = google.gmail({ version: 'v1', auth });
+
+    // Retrieve message data for the unreplied message
+    const messageData = await gmail.users.messages.get({
+      userId: 'me',
+      id: message.id,
+    });
+
+    const email = messageData.data;
+
+    // Check if the email has already been replied to
+    const hasReplied = email.payload.headers.some(
+      (header) => header.name === 'In-Reply-To'
+    );
+
+    // If not replied, send an auto-reply
+    if (!hasReplied) {
+      const replyMessage = {
+        userId: 'me',
+        resource: {
+          raw: Buffer.from(
+            `To: ${email.payload.headers.find((header) => header.name === 'From')
+              .value}\r\n` +
+              `Subject: Re: ${email.payload.headers.find(
+                (header) => header.name === 'Subject'
+              ).value}\r\n` +
+              `Content-Type: text/plain; charset="UTF-8"\r\n` +
+              `Content-Transfer-Encoding: 7bit\r\n\r\n` +
+              `Thank you for your email. I'm currently on vacation, I will reply as early as possible. This is a bot generated Mail.\r\n`
+          ).toString('base64'),
+        },
+      };
+
+      // Send the auto-reply message
+      await gmail.users.messages.send(replyMessage);
+
+      // Add label and move the email out of INBOX after replying
+      await gmail.users.messages.modify({
+        userId: 'me',
+        id: message.id,
+        resource: {
+          addLabelIds: [labelId],
+          removeLabelIds: ['INBOX'], // Remove from INBOX after replying
+        },
+      });
+
+      console.log('Auto-reply sent and message labeled successfully.');
+    } else {
+      console.log('Email already replied.');
+    }
+  } catch (error) {
+    console.error('Error sending auto-reply:', error);
+    throw error;
+  }
+}
+
 // Function to run the sequence periodically
 function runSequence(auth) {
   setInterval(async () => {
@@ -82,8 +141,9 @@ function runSequence(auth) {
       const messages = await getUnrepliedMessages(auth);
 
       if (messages && messages.length > 0) {
-        console.log(messages.length); //Checking nnumber of unread messages
-        console.log(labelId);//Checking if label Id is generated or not
+        for (const message of messages) {
+          await sendAutoReply(auth, message, labelId);
+        }
       }
     } catch (error) {
       console.error("Error in sequence:", error);
