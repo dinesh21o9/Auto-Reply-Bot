@@ -18,7 +18,7 @@ This Node.js-based application automates replying to incoming emails in your Gma
 
 1. Clone the repository:
 
-   git clone https://github.com/your-username/auto-reply-bot.git
+   git clone https://github.com/your-username/Auto-Reply-Bot.git
 
 2. Install dependencies:
 
