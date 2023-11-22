@@ -1,0 +1,26 @@
+{
+  "name": "auto-reply-bot",
+  "version": "1.0.0",
+  "description": "Bot that automatically replies to new mails while you are on Vacation",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dinesh21o9/Auto-Reply-Bot.git"
+  },
+  "author": "Dinesh Surya",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dinesh21o9/Auto-Reply-Bot/issues"
+  },
+  "homepage": "https://github.com/dinesh21o9/Auto-Reply-Bot#readme",
+  "dependencies": {
+    "@google-cloud/local-auth": "^3.0.0",
+    "express": "^4.18.2",
+    "google-auth-library": "^9.2.0",
+    "googleapis": "^128.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}
